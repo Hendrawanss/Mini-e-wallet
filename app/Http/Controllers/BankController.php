@@ -16,12 +16,12 @@ class BankController extends Controller
      */
     public function __construct()
     {
-        //
+        $this->banks = new Banks();
+        $this->bankBalanceHistory = new BankBalanceHistory();
+        $this->resp = new AuthController();
     }
 
     public function createBank(Request $request) {
-        $banks = new Banks();
-        $resp = new AuthController();
         $formData = [
             'name' => $request->name,
             'balance' => $request->balance,
@@ -29,87 +29,74 @@ class BankController extends Controller
             'code' => $request->code,
             'enable' => 1,
         ];
-        $state = $banks->create($formData);
+        $state = $this->banks->create($formData);
         if($state == true) {
-            return $resp->response('Success', 200, 'Balance bank sukses dibuat, silahkan cek kembali data anda!');
+            return $this->resp->response('Success', 200, 'Balance bank sukses dibuat, silahkan cek kembali data anda!');
         } else {
-            return $resp->response('Failed', 500, 'Balance bank gagal dibuat, terdapat kesalahan teknis hubungi pihak developer segera!');
+            return $this->resp->response('Failed', 500, 'Balance bank gagal dibuat, terdapat kesalahan teknis hubungi pihak developer segera!');
         }
     }
 
     public function getBankById($bank_id) {
-        $banks = new Banks();
-        $resp = new AuthController();
-        $dataBank = $banks->getById($bank_id);
+        $dataBank = $this->banks->getById($bank_id);
         if($dataBank) {
-            return $resp->response('Success', 200, $dataBank);
+            return $this->resp->response('Success', 200, $dataBank);
         } else {
-            return $resp->response('Failed', 500, 'Gagal mengambil data bank, terdapat kesalahan teknis hubungi pihak developer segera!');
+            return $this->resp->response('Failed', 500, 'Gagal mengambil data bank, terdapat kesalahan teknis hubungi pihak developer segera!');
         }
     }
 
     public function getAllBanks() {
-        $banks = new Banks();
-        $resp = new AuthController();
-        $dataBanks = $banks->getAll();
+        $dataBanks = $this->banks->getAll();
         if($dataBanks) {
-            return $resp->response('Success', 200, $dataBanks);
+            return $this->resp->response('Success', 200, $dataBanks);
         } else {
-            return $resp->response('Failed', 500, 'Gagal mengambil data bank, terdapat kesalahan teknis hubungi pihak developer segera!');
+            return $this->resp->response('Failed', 500, 'Gagal mengambil data bank, terdapat kesalahan teknis hubungi pihak developer segera!');
         }
     }
 
     public function getAllBankBalanceHistory() {
-        $bankBalanceHistory = new BankBalanceHistory();
-        $resp = new AuthController();
-        $dataBank = $bankBalanceHistory->getAll();
+        $dataBank = $this->bankBalanceHistory->getAll();
         if($dataBank) {
-            return $resp->response('Success', 200, $dataBank);
+            return $this->resp->response('Success', 200, $dataBank);
         } else {
-            return $resp->response('Failed', 500, 'Gagal mengambil data history bank, terdapat kesalahan teknis hubungi pihak developer segera!');
+            return $this->resp->response('Failed', 500, 'Gagal mengambil data history bank, terdapat kesalahan teknis hubungi pihak developer segera!');
         }
     }
 
     public function getBankBalanceHistoryById($bank_id) {
-        $bankBalanceHistory = new BankBalanceHistory();
-        $resp = new AuthController();
-        $dataBank = $bankBalanceHistory->getById($bank_id);
+        $dataBank = $this->bankBalanceHistory->getById($bank_id);
         if($dataBank) {
-            return $resp->response('Success', 200, $dataBank);
+            return $this->resp->response('Success', 200, $dataBank);
         } else {
-            return $resp->response('Failed', 500, 'Gagal mengambil data history bank, terdapat kesalahan teknis hubungi pihak developer segera!');
+            return $this->resp->response('Failed', 500, 'Gagal mengambil data history bank, terdapat kesalahan teknis hubungi pihak developer segera!');
         }
     }
 
     public function updateBank(Request $request, $id) {
-        $banks = new Banks();
-        $resp = new AuthController();
-        $rowAffected = $banks->updateDataBank($id,$request->input());
+        $rowAffected = $this->banks->updateDataBank($id,$request->input());
         if($rowAffected == 1) {
-            return $resp->response('Success', 200, 'Update sukses, silahkan cek kembali data anda!');
+            return $this->resp->response('Success', 200, 'Update sukses, silahkan cek kembali data anda!');
         } else {
-            return $resp->response('Failed', 500, 'Update gagal, terdapat kesalahan teknis hubungi pihak developer segera!');
+            return $this->resp->response('Failed', 500, 'Update gagal, terdapat kesalahan teknis hubungi pihak developer segera!');
         }
     }
 
     public function deleteBank($id) {
-        $banks = new Banks();
-        $bankBalanceHistory = new BankBalanceHistory();
-        $resp = new AuthController();
-        $rowAffected = $banks->deleteDataBank($id);
+        $rowAffected = $this->banks->deleteDataBank($id);
         if($rowAffected == 1) {
-            if($bankBalanceHistory->countHistory($id) == 0) {
-                return $resp->response('Success', 200, 'Delete sukses, silahkan cek kembali data anda!');
+            if($this->bankBalanceHistory->countHistory($id) == 0) {
+                return $this->resp->response('Success', 200, 'Delete sukses, silahkan cek kembali data anda!');
             } else {
-                $rowAffected = $bankBalanceHistory->deleteDataHistoryByBankId($id);
+                $rowAffected = $this->bankBalanceHistory->deleteDataHistoryByBankId($id);
                 if($rowAffected >= 1) {
-                    return $resp->response('Success', 200, 'Delete sukses, silahkan cek kembali data anda!');
+                    return $this->resp->response('Success', 200, 'Delete sukses, silahkan cek kembali data anda!');
                 } else {
-                    return $resp->response('Failed', 500, 'Delete history gagal, terdapat kesalahan teknis hubungi pihak developer segera!');
+                    return $this->resp->response('Failed', 500, 'Delete history gagal, terdapat kesalahan teknis hubungi pihak developer segera!');
                 }
             }
         } else {
-            return $resp->response('Failed', 500, 'Delete gagal, terdapat kesalahan teknis hubungi pihak developer segera!');
+            return $this->resp->response('Failed', 500, 'Delete gagal, terdapat kesalahan teknis hubungi pihak developer segera!');
         }
     }
     //

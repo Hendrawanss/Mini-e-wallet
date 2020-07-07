@@ -23,46 +23,42 @@ class UsersController extends Controller
      */
     public function __construct()
     {
-        //
+        $this->users = new Users();
+        $this->userBalance = new UsersBalance();
+        $this->usersBalanceHistory = new UsersBalanceHistory();
+        $this->banks = new Banks();
+        $this->banksBalanceHistory = new BankBalanceHistory();
+        $this->resp = new AuthController();
     }
 
     public function getUserById(Request $request) {
-        $users = new Users();
-        $resp = new AuthController();
-        $dataUser = $users->getById($request->id);
+        $dataUser = $this->users->getById($request->id);
         if($dataUser) {
-            return $resp->response('Success', 200, $dataUser);
+            return $this->resp->response('Success', 200, $dataUser);
         } else {
-            return $resp->response('Failed', 500, 'Gagal mengambil data user, terdapat kesalahan teknis hubungi pihak developer segera!');
+            return $this->resp->response('Failed', 500, 'Gagal mengambil data user, terdapat kesalahan teknis hubungi pihak developer segera!');
         }
     }
 
     public function getUserBalanceHistoryById($user_id) {
-        $usersBalanceHistory = new UsersBalanceHistory();
-        $resp = new AuthController();
-        $data = $usersBalanceHistory->getById($user_id);
+        $data = $this->usersBalanceHistory->getById($user_id);
         if($data) {
-            return $resp->response('Success', 200, $data);
+            return $this->resp->response('Success', 200, $data);
         } else {
-            return $resp->response('Failed', 500, 'Gagal mengambil data history user, terdapat kesalahan teknis hubungi pihak developer segera!');
+            return $this->resp->response('Failed', 500, 'Gagal mengambil data history user, terdapat kesalahan teknis hubungi pihak developer segera!');
         }
     }
 
     public function getAllUserBalanceHistory() {
-        $usersBalanceHistory = new UsersBalanceHistory();
-        $resp = new AuthController();
-        $data = $usersBalanceHistory->getALl();
+        $data = $this->usersBalanceHistory->getALl();
         if($data) {
-            return $resp->response('Success', 200, $data);
+            return $this->resp->response('Success', 200, $data);
         } else {
-            return $resp->response('Failed', 500, 'Gagal mengambil data history user, terdapat kesalahan teknis hubungi pihak developer segera!');
+            return $this->resp->response('Failed', 500, 'Gagal mengambil data history user, terdapat kesalahan teknis hubungi pihak developer segera!');
         }
     }
 
     public function createUsers(Request $request) {
-        $users = new Users();
-        $userBalance = new UsersBalance();
-        $resp = new AuthController();
         $formData = [
             'username' => $request->username,
             'email' => $request->email,
@@ -70,95 +66,83 @@ class UsersController extends Controller
             'role' => $request->role,
             'key' => Hash::make(Str::random(10))
         ];
-        $id = $users->create($formData);
+        $id = $this->users->create($formData);
         if($id) {
             $formBalance = [
                 'user_id' => $id,
                 'balance' => 0,
             ];
-            $rowAffected = $userBalance->create($formBalance);
+            $rowAffected = $this->userBalance->create($formBalance);
             if($rowAffected == true){
-                return $resp->response('Success', 200, 'Sukses membuat user, silahkan cek kembali data anda!');
+                return $this->resp->response('Success', 200, 'Sukses membuat user, silahkan cek kembali data anda!');
             } else {
-                return $resp->response('Failed', 500, 'Gagal membuat balance user, terdapat kesalahan teknis hubungi pihak developer segera!');
+                return $this->resp->response('Failed', 500, 'Gagal membuat balance user, terdapat kesalahan teknis hubungi pihak developer segera!');
             }
         } else {
-            return $resp->response('Failed', 500, 'Gagal membuat user, terdapat kesalahan teknis hubungi pihak developer segera!');
+            return $this->resp->response('Failed', 500, 'Gagal membuat user, terdapat kesalahan teknis hubungi pihak developer segera!');
         }
     }
 
     public function getAllUsers() {
-        $users = new Users();
-        $resp = new AuthController();
-        $dataUsers = $users->getAll();
+        $dataUsers = $this->users->getAll();
         if($dataUsers) {
-            return $resp->response('Success', 200, $dataUsers);
+            return $this->resp->response('Success', 200, $dataUsers);
         } else {
-            return $resp->response('Failed', 500, 'Gagal mengambil data user, terdapat kesalahan teknis hubungi pihak developer segera!');
+            return $this->resp->response('Failed', 500, 'Gagal mengambil data user, terdapat kesalahan teknis hubungi pihak developer segera!');
         }
     }
 
     public function updateUser(Request $request, $id) {
-        $users = new Users();
-        $resp = new AuthController();
         $formData = $request->input();
         if($formData['password']) {
             $formData['password'] = Hash::make($formData['password']);
         }
-        $rowAffected = $users->updateDataUser($id,$formData);
+        $rowAffected = $this->users->updateDataUser($id,$formData);
         if($rowAffected == 1) {
-            return $resp->response('Success', 200, 'Update data sukses, silahkan cek kembali data anda!');
+            return $this->resp->response('Success', 200, 'Update data sukses, silahkan cek kembali data anda!');
         } else {
-            return $resp->response('Failed', 500, 'Update gagal, terdapat kesalahan teknis hubungi pihak developer segera!');
+            return $this->resp->response('Failed', 500, 'Update gagal, terdapat kesalahan teknis hubungi pihak developer segera!');
         }
     }
 
     public function deleteUser($id) {
-        $users = new Users();
-        $userBalance = new UsersBalance();
-        $userBalanceHistory = new UsersBalanceHistory();
-        $resp = new AuthController();
-        $rowAffected = $users->deleteDataUser($id);
+        $rowAffected = $this->users->deleteDataUser($id);
         if($rowAffected == 1) {
-            $rowAffected = $userBalance->deleteBalance($id);
+            $rowAffected = $this->userBalance->deleteBalance($id);
             if($rowAffected == 1) {
-                if($userBalanceHistory->countHistory($id) == 0) {
-                    return $resp->response('Success', 200, 'Delete sukses, silahkan cek kembali data anda!');
+                if($this->usersBalanceHistory->countHistory($id) == 0) {
+                    return $this->resp->response('Success', 200, 'Delete sukses, silahkan cek kembali data anda!');
                 } else {
-                    $rowAffected = $userBalanceHistory->deleteBalanceHistory($id);
+                    $rowAffected = $this->usersBalanceHistory->deleteBalanceHistory($id);
                     if($rowAffected >= 1) {
-                        return $resp->response('Success', 200, 'Delete sukses, silahkan cek kembali data anda!');
+                        return $this->resp->response('Success', 200, 'Delete sukses, silahkan cek kembali data anda!');
                     } else {
-                        return $resp->response('Failed', 500, 'Delete balance history gagal, terdapat kesalahan teknis hubungi pihak developer segera!');
+                        return $this->resp->response('Failed', 500, 'Delete balance history gagal, terdapat kesalahan teknis hubungi pihak developer segera!');
                     }
                 }
             } else {
-                return $resp->response('Failed', 500, 'Delete balance gagal, terdapat kesalahan teknis hubungi pihak developer segera!');
+                return $this->resp->response('Failed', 500, 'Delete balance gagal, terdapat kesalahan teknis hubungi pihak developer segera!');
             }
         } else {
-            return $resp->response('Failed', 500, 'Delete gagal, terdapat kesalahan teknis hubungi pihak developer segera!');
+            return $this->resp->response('Failed', 500, 'Delete gagal, terdapat kesalahan teknis hubungi pihak developer segera!');
         }
     }
 
     public function updateUserBalanceHistory(Request $request, $id) {
-        $usersBalanceHistory = new UsersBalanceHistory();
-        $resp = new AuthController();
-        $rowAffected = $usersBalanceHistory->updateDataUserBalanceHistory($id,$request->input());
+        $rowAffected = $this->usersBalanceHistory->updateDataUserBalanceHistory($id,$request->input());
         if($rowAffected == 1) {
-            return $resp->response('Success', 200, 'Update sukses, silahkan cek kembali data anda!');
+            return $this->resp->response('Success', 200, 'Update sukses, silahkan cek kembali data anda!');
         } else {
-            return $resp->response('Failed', 500, 'Update gagal, terdapat kesalahan teknis hubungi pihak developer segera!');
+            return $this->resp->response('Failed', 500, 'Update gagal, terdapat kesalahan teknis hubungi pihak developer segera!');
         }
     }
 
     public function deleteUserBalanceHistory($id) {
-        $usersBalanceHistory = new UsersBalanceHistory();
-        $resp = new AuthController();
-        $rowAffected = $usersBalanceHistory->deleteDataUserBalanceHistory($id);
+        $rowAffected = $this->usersBalanceHistory->deleteDataUserBalanceHistory($id);
         if($rowAffected == 1) {
-            return $resp->response('Success', 200, 'Delete sukses, silahkan cek kembali data anda!');
+            return $this->resp->response('Success', 200, 'Delete sukses, silahkan cek kembali data anda!');
         } else {
-            return $resp->response('Failed', 500, 'Delete gagal, terdapat kesalahan teknis hubungi pihak developer segera!');
+            return $this->resp->response('Failed', 500, 'Delete gagal, terdapat kesalahan teknis hubungi pihak developer segera!');
         }
     }
 
@@ -167,13 +151,11 @@ class UsersController extends Controller
         switch($jenis) {
             case 'Bank':
                 // Untuk Pengecekan Topup antar user
-                $banks = new Banks();
-                $state = $banks->checkBalance($code,$nominal);
+                $state = $this->banks->checkBalance($code,$nominal);
                 break;
             case 'User':
                 // Untuk Pengecekan Transfer antar user
-                $usersBalance = new UsersBalance();
-                $state = $usersBalance->checkBalance($key,$nominal);
+                $state = $this->userBalance->checkBalance($key,$nominal);
                 break;
         }
         return $state;
@@ -186,36 +168,29 @@ class UsersController extends Controller
         $nominal = $request->nominal;
         $type = $request->type;
         $loc = $request->location;
-
-
-        $resp = new AuthController();
-        $usersBalanceHistory = new UsersBalanceHistory();
-        $banks = new Banks();
-        $banksBalanceHistory = new BankBalanceHistory();
-        $userBalance = new UsersBalance();
         
         // Pengecekan Status Bank
-        $is_enable = $banks->is_enabled($codeBank);
+        $is_enable = $this->banks->is_enabled($codeBank);
         if($is_enable == 0) {
-            return $resp->response('Failed', 405, 'Bank yang anda pilih saat ini sedang tidak melayani topup, silahkan gunakan jasa lain!');
+            return $this->resp->response('Failed', 405, 'Bank yang anda pilih saat ini sedang tidak melayani topup, silahkan gunakan jasa lain!');
         } else if($is_enable == 0) {
-            return $resp->response('Failed', 500, 'Terjadi masalah dalam proses pengecekan availablelity bank');
+            return $this->resp->response('Failed', 500, 'Terjadi masalah dalam proses pengecekan availablelity bank');
         }
 
         // Pengecekan Saldo Bank
         $state = $this->checkBalance('Bank', $codeBank, null, $nominal);
         if($state == 'Saldo Kurang') {
-            return $resp->response('Failed', 405, 'Saldo Bank yang anda pilih kurang untuk melayani nominal topup anda!');
+            return $this->resp->response('Failed', 405, 'Saldo Bank yang anda pilih kurang untuk melayani nominal topup anda!');
         }
 
         // Transaction Begin
         DB::beginTransaction();
 
         // Pengurangan Saldo Bank
-        $state = $banks->balanceReduction($codeBank,$nominal);
+        $state = $this->banks->balanceReduction($codeBank,$nominal);
         if($state['status'] == 'Failed') {
             DB::rollBack();
-            return $resp->response('Failed', 500, 'Terjadi masalah dalam proses pengurangan Saldo Bank, Data di Rollback!');
+            return $this->resp->response('Failed', 500, 'Terjadi masalah dalam proses pengurangan Saldo Bank, Data di Rollback!');
         }
         
         // Pencatatan History Bank
@@ -231,17 +206,17 @@ class UsersController extends Controller
             'author' => $key
         ];
 
-        $state = $banksBalanceHistory->store($dataHistoryBank);
+        $state = $this->banksBalanceHistory->store($dataHistoryBank);
         if(!$state){
             DB::rollBack();
-            return $resp->response('Failed', 500, 'Terjadi masalah dalam proses penyimpanan History Bank, Data di Rollback!');
+            return $this->resp->response('Failed', 500, 'Terjadi masalah dalam proses penyimpanan History Bank, Data di Rollback!');
         } 
 
         // Penambahan Balance pada User
-        $state = $userBalance->additionBalance($key,$nominal);
+        $state = $this->userBalance->additionBalance($key,$nominal);
         if($state['status'] == 'Failed') {
             DB::rollBack();
-            return $resp->response('Failed', 500, 'Terjadi masalah dalam proses penambahan Saldo User, Data di Rollback!');
+            return $this->resp->response('Failed', 500, 'Terjadi masalah dalam proses penambahan Saldo User, Data di Rollback!');
         }
 
         // Pencatatan History User
@@ -257,14 +232,14 @@ class UsersController extends Controller
             'author' => $key
         ];
 
-        $state = $usersBalanceHistory->store($dataHistoryUser);
+        $state = $this->usersBalanceHistory->store($dataHistoryUser);
         if(!$state){
             DB::rollBack();
-            return $resp->response('Failed', 500, 'Terjadi masalah dalam proses penyimpanan History User, Data di Rollback!');
+            return $this->resp->response('Failed', 500, 'Terjadi masalah dalam proses penyimpanan History User, Data di Rollback!');
         }
 
         DB::commit();
-        return $resp->response('Success', 200, 'Proses topup anda berhasil, silahkan cek saldo anda kembali.');
+        return $this->resp->response('Success', 200, 'Proses topup anda berhasil, silahkan cek saldo anda kembali.');
     }
 
     public function transferBetweenUser(Request $request) {
@@ -275,25 +250,21 @@ class UsersController extends Controller
         $type = $request->type;
         $loc = $request->location;
 
-        $resp = new AuthController();
-        $usersBalanceHistory = new UsersBalanceHistory();
-        $userBalance = new UsersBalance();
-        $users = new Users();
 
         // Pengecekan Saldo User Pengirim
         $state = $this->checkBalance('User', null, $key, $nominal);
         if($state == 'Saldo Kurang') {
-            return $resp->response('Failed', 405, 'Saldo anda kurang untuk melakukan transfer, isi saldo anda dan lanjutkan transaksi!');
+            return $this->resp->response('Failed', 405, 'Saldo anda kurang untuk melakukan transfer, isi saldo anda dan lanjutkan transaksi!');
         }
 
         // Transaction Begin
         DB::beginTransaction();
 
         // Pengurangan Saldo User Pengirim
-        $state = $userBalance->balanceReduction($key,$nominal);
+        $state = $this->userBalance->balanceReduction($key,$nominal);
         if($state['status'] == 'Failed') {
             DB::rollBack();
-            return $resp->response('Failed', 500, 'Terjadi masalah dalam proses pengurangan Saldo Pengirim, Data di Rollback!');
+            return $this->resp->response('Failed', 500, 'Terjadi masalah dalam proses pengurangan Saldo Pengirim, Data di Rollback!');
         }
         
         // Pencatatan History User Pengirim
@@ -309,24 +280,24 @@ class UsersController extends Controller
             'author' => $key
         ];
 
-        $state = $usersBalanceHistory->store($dataHistoryUser);
+        $state = $this->usersBalanceHistory->store($dataHistoryUser);
         if(!$state){
             DB::rollBack();
-            return $resp->response('Failed', 500, 'Terjadi masalah dalam proses penyimpanan History User Pengirim, Data di Rollback!');
+            return $this->resp->response('Failed', 500, 'Terjadi masalah dalam proses penyimpanan History User Pengirim, Data di Rollback!');
         } 
 
         // Get Key User Penerima
-        $keyDestination = $users->getUserKey($idDestinationUser);
+        $keyDestination = $this->users->getUserKey($idDestinationUser);
         if(!$keyDestination){
             DB::rollBack();
-            return $resp->response('Failed', 500, 'Terjadi masalah dalam proses pengambilan Key User Pengirim, Data di Rollback!');
+            return $this->resp->response('Failed', 500, 'Terjadi masalah dalam proses pengambilan Key User Pengirim, Data di Rollback!');
         } 
 
         // Penambahan Balance pada User Penerima
-        $state = $userBalance->additionBalance($keyDestination,$nominal);
+        $state = $this->userBalance->additionBalance($keyDestination,$nominal);
         if($state['status'] == 'Failed') {
             DB::rollBack();
-            return $resp->response('Failed', 500, 'Terjadi masalah dalam proses penambahan Saldo User Penerima, Data di Rollback!');
+            return $this->resp->response('Failed', 500, 'Terjadi masalah dalam proses penambahan Saldo User Penerima, Data di Rollback!');
         }
 
         // Pencatatan History User
@@ -342,14 +313,14 @@ class UsersController extends Controller
             'author' => $key
         ];
 
-        $state = $usersBalanceHistory->store($dataHistoryUser);
+        $state = $this->usersBalanceHistory->store($dataHistoryUser);
         if(!$state){
             DB::rollBack();
-            return $resp->response('Failed', 500, 'Terjadi masalah dalam proses penyimpanan History User Penerima, Data di Rollback!');
+            return $this->resp->response('Failed', 500, 'Terjadi masalah dalam proses penyimpanan History User Penerima, Data di Rollback!');
         }
 
         DB::commit();
-        return $resp->response('Success', 200, 'Proses Transfer anda berhasil, silahkan cek saldo anda kembali.');
+        return $this->resp->response('Success', 200, 'Proses Transfer anda berhasil, silahkan cek saldo anda kembali.');
     }
     //
 }
