@@ -18,7 +18,7 @@ class CreateUserBalanceTable extends Migration
             $table->id();
             $table->foreignId('user_id');
             $table->integer('balance');
-            $table->integer('balance_achieve');
+            $table->integer('balance_achieve')->default(1);
             $table->timestamp('created_at')->nullable()->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->nullable()->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
         });
