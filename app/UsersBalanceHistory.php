@@ -29,4 +29,9 @@ class UsersBalanceHistory extends Model
         $data = DB::table($this->table)->select('*')->where('user_id', '=', $user_id)->get();
         return $data;
     }
+
+    public function countHistory($user_id) {
+        $jumlah = DB::table($this->table)->where('user_id', '=', $user_id)->count();
+        return $jumlah;
+    }
 }

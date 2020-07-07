@@ -37,22 +37,48 @@ class BankController extends Controller
         }
     }
 
+    public function getBankById($bank_id) {
+        $banks = new Banks();
+        $resp = new AuthController();
+        $dataBank = $banks->getById($bank_id);
+        if($dataBank) {
+            return $resp->response('Success', 200, $dataBank);
+        } else {
+            return $resp->response('Failed', 500, 'Gagal mengambil data bank, terdapat kesalahan teknis hubungi pihak developer segera!');
+        }
+    }
+
     public function getAllBanks() {
         $banks = new Banks();
+        $resp = new AuthController();
         $dataBanks = $banks->getAll();
-        return response()->json($dataBanks);
+        if($dataBanks) {
+            return $resp->response('Success', 200, $dataBanks);
+        } else {
+            return $resp->response('Failed', 500, 'Gagal mengambil data bank, terdapat kesalahan teknis hubungi pihak developer segera!');
+        }
     }
 
     public function getAllBankBalanceHistory() {
         $bankBalanceHistory = new BankBalanceHistory();
+        $resp = new AuthController();
         $dataBank = $bankBalanceHistory->getAll();
-        return response()->json($dataBank);
+        if($dataBank) {
+            return $resp->response('Success', 200, $dataBank);
+        } else {
+            return $resp->response('Failed', 500, 'Gagal mengambil data history bank, terdapat kesalahan teknis hubungi pihak developer segera!');
+        }
     }
 
     public function getBankBalanceHistoryById($bank_id) {
         $bankBalanceHistory = new BankBalanceHistory();
+        $resp = new AuthController();
         $dataBank = $bankBalanceHistory->getById($bank_id);
-        return response()->json($dataBank);
+        if($dataBank) {
+            return $resp->response('Success', 200, $dataBank);
+        } else {
+            return $resp->response('Failed', 500, 'Gagal mengambil data history bank, terdapat kesalahan teknis hubungi pihak developer segera!');
+        }
     }
 
     public function updateBank(Request $request, $id) {

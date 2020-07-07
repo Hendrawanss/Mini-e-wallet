@@ -19,6 +19,14 @@ class Banks extends Model
         return $data;
     }
 
+    public function getById($bank_id) {
+        $data = DB::table($this->table)
+                        ->select('*')
+                        ->where('id', '=', $bank_id)
+                        ->first();
+        return $data;
+    }
+
     public function create($formData) {
         return DB:: table($this->table)->insert($formData);
     }

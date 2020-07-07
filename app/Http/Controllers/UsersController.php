@@ -28,20 +28,35 @@ class UsersController extends Controller
 
     public function getUserById(Request $request) {
         $users = new Users();
+        $resp = new AuthController();
         $dataUser = $users->getById($request->id);
-        return response()->json($dataUser);
+        if($dataUser) {
+            return $resp->response('Success', 200, $dataUser);
+        } else {
+            return $resp->response('Failed', 500, 'Gagal mengambil data user, terdapat kesalahan teknis hubungi pihak developer segera!');
+        }
     }
 
     public function getUserBalanceHistoryById($user_id) {
         $usersBalanceHistory = new UsersBalanceHistory();
+        $resp = new AuthController();
         $data = $usersBalanceHistory->getById($user_id);
-        return response()->json($data);
+        if($data) {
+            return $resp->response('Success', 200, $data);
+        } else {
+            return $resp->response('Failed', 500, 'Gagal mengambil data history user, terdapat kesalahan teknis hubungi pihak developer segera!');
+        }
     }
 
     public function getAllUserBalanceHistory() {
         $usersBalanceHistory = new UsersBalanceHistory();
+        $resp = new AuthController();
         $data = $usersBalanceHistory->getALl();
-        return response()->json($data);
+        if($data) {
+            return $resp->response('Success', 200, $data);
+        } else {
+            return $resp->response('Failed', 500, 'Gagal mengambil data history user, terdapat kesalahan teknis hubungi pihak developer segera!');
+        }
     }
 
     public function createUsers(Request $request) {
@@ -74,16 +89,25 @@ class UsersController extends Controller
 
     public function getAllUsers() {
         $users = new Users();
+        $resp = new AuthController();
         $dataUsers = $users->getAll();
-        return response()->json($dataUsers);
+        if($dataUsers) {
+            return $resp->response('Success', 200, $dataUsers);
+        } else {
+            return $resp->response('Failed', 500, 'Gagal mengambil data user, terdapat kesalahan teknis hubungi pihak developer segera!');
+        }
     }
 
     public function updateUser(Request $request, $id) {
         $users = new Users();
         $resp = new AuthController();
-        $rowAffected = $users->updateDataUser($id,$request->input());
+        $formData = $request->input();
+        if($formData['password']) {
+            $formData['password'] = Hash::make($formData['password']);
+        }
+        $rowAffected = $users->updateDataUser($id,$formData);
         if($rowAffected == 1) {
-            return $resp->response('Success', 200, 'Update sukses, silahkan cek kembali data anda!');
+            return $resp->response('Success', 200, 'Update data sukses, silahkan cek kembali data anda!');
         } else {
             return $resp->response('Failed', 500, 'Update gagal, terdapat kesalahan teknis hubungi pihak developer segera!');
         }
@@ -97,9 +121,17 @@ class UsersController extends Controller
         $rowAffected = $users->deleteDataUser($id);
         if($rowAffected == 1) {
             $rowAffected = $userBalance->deleteBalance($id);
-            if($rowAffected >= 1) {
-                $rowAffected = $userBalanceHistory->deleteBalanceHistory($id);
-                return $resp->response('Success', 200, 'Delete sukses, Terimakasih sudah mencoba layanan kami:)');
+            if($rowAffected == 1) {
+                if($userBalanceHistory->countHistory($id) == 0) {
+                    return $resp->response('Success', 200, 'Delete sukses, silahkan cek kembali data anda!');
+                } else {
+                    $rowAffected = $userBalanceHistory->deleteBalanceHistory($id);
+                    if($rowAffected >= 1) {
+                        return $resp->response('Success', 200, 'Delete sukses, silahkan cek kembali data anda!');
+                    } else {
+                        return $resp->response('Failed', 500, 'Delete balance history gagal, terdapat kesalahan teknis hubungi pihak developer segera!');
+                    }
+                }
             } else {
                 return $resp->response('Failed', 500, 'Delete balance gagal, terdapat kesalahan teknis hubungi pihak developer segera!');
             }

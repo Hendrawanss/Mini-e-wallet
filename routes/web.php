@@ -48,6 +48,7 @@ $router->group(['prefix' => 'bank', 'middleware' => ['auth', 'admin']], function
         $router->get('/{bank_id}', ['uses' => 'BankController@getBankBalanceHistoryById']); 
     });
     $router->get('/', ['uses' => 'BankController@getAllBanks']); 
+    $router->get('/{bank_id}', ['uses' => 'BankController@getBankById']);
     $router->post('/', ['uses' => 'BankController@createBank']); 
     $router->put('/{id}', ['uses' => 'BankController@updateBank']); 
     $router->delete('/{id}', ['uses' => 'BankController@deleteBank']); 
