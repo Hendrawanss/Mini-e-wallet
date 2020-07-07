@@ -41,7 +41,6 @@ The Lumen framework is open-sourced software licensed under the [MIT license](ht
     - DB_USERNAME = <username database anda>
     - DB_PASSWORD = <password database anda>
     ```
-7. 
 8. lakukan migrasi table dengan command
     ```
     php artisan migrate
@@ -131,7 +130,7 @@ Bisa melakukan beberapa aktivitas seperti:
     - Create data 
     
     Menggunakan methode `POST` dengan endpoint `/user`.
-    Parameter yang perlu dikirim yaitu berupa header `Authorization` dengan isian `key user`.
+    Parameter yang perlu dikirim yaitu berupa `username`, `password`, `email`, `role`, dan header `Authorization` dengan isian `key user`.
 
     Contoh:
 
@@ -268,8 +267,8 @@ Bisa melakukan beberapa aktivitas seperti:
 
     - Read Bank By Id
 
-    Menggunakan methode `POST` dengan endpoint `/bank/id`.
-    Parameter yang perlu dikirim yaitu data dengan `key: id`(id bank) dan berupa header `Authorization` dengan isian `key user`.
+    Menggunakan methode `GET` dengan endpoint `/bank/{id}`.
+    Parameter yang perlu dikirim yaitu data dengan `{id}`(id bank) dan berupa header `Authorization` dengan isian `key user`.
 
     Contoh:
 
